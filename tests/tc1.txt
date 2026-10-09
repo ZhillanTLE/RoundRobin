@@ -1,0 +1,7 @@
+# Test case 1: normal conditions, 5 processes.
+# Columns: pid  arrival  burst  priority     (smaller priority = more urgent)
+1   0   8   3
+2   1   4   1
+3   2   2   2
+4   3   5   4
+5   4   3   2
