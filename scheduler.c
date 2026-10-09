@@ -135,6 +135,43 @@ static PCB *choose_next(Sim *sim, PCB *running)
     
 }
 
+static void rr_replay(const Sim *sim, int q, double *awt, double *atat,
+                      double *art, int *switches)
+{
+    int n = sim->n, rem[MAX_PROCESSES], first[MAX_PROCESSES], done[MAX_PROCESSES];
+    for (int i = 0; i < n; i++) {
+        rem[i] = sim->proc[i].burst; first[i] = -1; done[i] = -1;
+    }
+    int cur = -1, last = -1, used = 0, last_pid = -1, finished = 0, sw = 0;
+    for (int t = 0; finished < n && t < MAX_TIME; t++) {
+        int next = -1;
+        if (cur >= 0 && rem[cur] > 0 && used < q) {
+            next = cur; used++;
+        } else {
+            for (int k = 1; k <= n; k++) {
+                int i = (last < 0) ? k - 1 : (last + k) % n;
+                if (sim->proc[i].arrival <= t && rem[i] > 0) {
+                    next = i; last = i; used = 1; break;
+                }
+            }
+        }
+        if (next < 0) { cur = -1; used = 0; continue; }
+        if (last_pid != -1 && sim->proc[next].pid != last_pid) sw++;
+        if (first[next] < 0) first[next] = t;
+        if (--rem[next] == 0) { done[next] = t + 1; finished++; }
+        last_pid = sim->proc[next].pid;
+        cur = (rem[next] > 0) ? next : -1;
+    }
+    double wt = 0, tat = 0, rt = 0;
+    for (int i = 0; i < n; i++) {
+        int ta = done[i] - sim->proc[i].arrival;
+        tat += ta;
+        wt  += ta - sim->proc[i].burst;
+        rt  += first[i] - sim->proc[i].arrival;
+    }
+    *awt = wt / n; *atat = tat / n; *art = rt / n; *switches = sw;
+}
+
 /* =======================================  ============================== */
 /*  TODO 2: the extra output your topic requires                         */
 /* ===================================================================== */
