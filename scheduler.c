@@ -35,7 +35,7 @@
 #include "simlib.h"
 
 /* Set this to your algorithm's name; it appears in the report header. */
-static const char *ALGORITHM_NAME = "TODO: your algorithm";
+static const char *ALGORITHM_NAME = "Round Robin";
 
 /* Round Robin / MLFQ only. Ignore it for the other algorithms. */
 static int TIME_QUANTUM = 2;
