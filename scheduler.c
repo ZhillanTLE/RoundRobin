@@ -189,6 +189,17 @@ static void print_topic_extra(const Sim *sim)
 
     /* TODO: your topic's own extra output, on top of the comparison above.
      *       See your ASSIGNMENT.md for what is required. */
+    static const int quanta[] = { 1, 2, 4, 8 };
+    printf("\nQUANTUM SWEEP (same workload)\n");
+    printf("  quantum   avgWT   avgTAT   avgRT   switches\n");
+    for (size_t k = 0; k < sizeof quanta / sizeof quanta[0]; k++) {
+        double wt, tat, rt; int sw;
+        rr_replay(sim, quanta[k], &wt, &tat, &rt, &sw);
+        printf("  q=%-6d %6.2f  %7.2f  %6.2f   %8d\n", quanta[k], wt, tat, rt, sw);
+    }
+    printf("\n  Interactive choice: the smallest quantum that keeps response time low\n"
+           "  without exploding context switches (see explanation.md). When q is at\n"
+           "  least the longest burst, nothing is preempted and RR equals FCFS.\n");
 }
 
 /* ===================================================================== */
