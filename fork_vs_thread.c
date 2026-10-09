@@ -69,7 +69,22 @@ int main(void)
      * ================================================================ */
 
     printf("\n=== Part 2: a forked PROCESS with its own copy ===\n");
-    printf("  TODO: implement this part (see the comment above)\n");
+    counter = 0;
+    fflush(stdout);                         /* don't duplicate buffered output */
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return 1;
+    }
+    if (pid == 0) {                         /* child: its own copy */
+        counter = 999;
+        printf("  child  (pid %d): counter = %d\n", (int)getpid(), counter);
+        fflush(stdout);
+        _exit(0);
+    }
+    wait(NULL);                             /* parent waits for the child */
+    printf("  parent (pid %d): counter = %d\n", (int)getpid(), counter);
+    printf("  -> the child changed ITS copy; the parent's counter is untouched\n");
 
     return 0;
 }
