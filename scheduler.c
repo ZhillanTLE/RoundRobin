@@ -109,16 +109,33 @@ static PCB *fcfs_choose(Sim *sim, PCB *running)
  * reproducible.
  */
 static PCB *choose_next(Sim *sim, PCB *running)
-{
-    /* TODO: replace this with your own algorithm.
-     *
-     * While you are getting the build working you can leave the line below,
-     * which simply runs the baseline. Your submission must NOT still call
-     * fcfs_choose(): implementing your own algorithm is the assignment. */
-    return fcfs_choose(sim, running);
+    {
+    /* TODO: replace this with your own algorithm.*/
+    static int ticks_used = 0; 
+    static int last_idx   = -1;     
+
+    if (running != NULL && running->remaining > 0 && ticks_used < TIME_QUANTUM) {
+        ticks_used++;
+        return running;
+    }
+
+    for (int k = 1; k <= sim->n; k++) {
+        int i = (last_idx + k) % sim->n;
+        if (last_idx < 0)
+            i = k - 1;            
+        PCB *p = &sim->proc[i];
+        if (p->arrival <= sim->clock && p->remaining > 0) {
+            last_idx   = i;
+            ticks_used = 1;   
+            return p;
+        }
+    }
+    ticks_used = 0;         
+    return NULL;
+    
 }
 
-/* ===================================================================== */
+/* =======================================  ============================== */
 /*  TODO 2: the extra output your topic requires                         */
 /* ===================================================================== */
 /*
